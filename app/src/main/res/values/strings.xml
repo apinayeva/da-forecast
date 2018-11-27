@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">da-forecast</string>
+    <string name="city_search_hint">Search city..</string>
+    <string name="find_button">Find</string>
+</resources>
