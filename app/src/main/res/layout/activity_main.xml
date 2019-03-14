@@ -10,57 +10,16 @@
         android:id="@+id/listOfCities"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="83dp">
 
         <ListView
             android:id="@+id/city_list"
             android:layout_width="410dp"
-            android:layout_height="342dp"
+            android:layout_height="match_parent"
             tools:layout_editor_absoluteX="8dp"
             tools:layout_editor_absoluteY="8dp" />
-
-        <TextView
-            android:id="@+id/tvColor"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Text color"
-            android:textSize="26sp"></TextView>
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:textSize="22sp"
-            android:id="@+id/tvSize"
-            android:text="Text size">
-        </TextView>
-
-        <Button
-            android:id="@+id/moreDetails"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Go to Activity Two"></Button>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="horizontal">
-
-            <EditText
-                android:id="@+id/find_city_field"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:hint="@string/city_search_hint"
-                android:inputType="textPersonName"
-                tools:ignore="NestedWeights" />
-
-            <Button
-                android:id="@+id/find_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/find_button" />
-        </LinearLayout>
 
     </LinearLayout>
 

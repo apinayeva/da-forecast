@@ -5,10 +5,12 @@ public class Record {
     int id;
     String name;
     String temperature;
+    boolean box;
 
     public Record(String name, String temperature) {
         this.name = name;
         this.temperature = temperature;
+        this.box = box;
     }
 
     public Record(int id, String name, String temperature) {
