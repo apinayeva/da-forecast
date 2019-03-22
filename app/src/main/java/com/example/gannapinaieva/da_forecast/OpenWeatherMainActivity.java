@@ -1,8 +1,7 @@
 package com.example.gannapinaieva.da_forecast;
 
-import android.app.AlertDialog;
 import android.app.DialogFragment;
-import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -10,12 +9,17 @@ import android.view.MenuItem;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
+import com.example.gannapinaieva.da_forecast.DBHelper;
 import com.example.gannapinaieva.da_forecast.Dialogs.AddNewCityDialog;
 import com.example.gannapinaieva.da_forecast.Dialogs.DeleteSelectedDialog;
+import com.example.gannapinaieva.da_forecast.R;
+import com.example.gannapinaieva.da_forecast.Record;
+import com.example.gannapinaieva.da_forecast.RecordAdapter;
+import com.example.gannapinaieva.da_forecast.SettingsActivity;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity { //implements OnClickListener {
+public class OpenWeatherMainActivity extends AppCompatActivity { //implements OnClickListener {
 
     // TODO: if empty list then ask location
     // TODO: lowercase in checking city doesn't work
@@ -31,11 +35,14 @@ public class MainActivity extends AppCompatActivity { //implements OnClickListen
     ArrayList<Record> listOfCities;
 
 
+//    SharedPreferences prefs = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+//        prefs = getSharedPreferences("com.example.gannapinaieva.da_forecast", MODE_PRIVATE);
 
         // создаем объект для создания и управления версиями БД
         dbHelper = new DBHelper(this);
@@ -86,29 +93,6 @@ public class MainActivity extends AppCompatActivity { //implements OnClickListen
 //        builder.show();
 //    }
 
-    public void deleteAllCitiesDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage("Do you really want to delete all cities?");
-
-        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dbHelper.deleteAllCities();
-                cityList.invalidateViews();
-                dialog.dismiss();
-            }
-        });
-
-        builder.setNegativeButton("Abort", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        builder.show();
-    }
-
     //groupId - идентификатор группы, частью которой является пункт меню
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.mymenu, menu);
@@ -126,10 +110,12 @@ public class MainActivity extends AppCompatActivity { //implements OnClickListen
                 Bundle bundle = new Bundle();
                 bundle.putString("list", (new RecordAdapter(this, dbHelper.getCityForecastList()).showResult()));
                 dialogFragment.setArguments(bundle);
-                dialogFragment.show((MainActivity.this).getSupportFragmentManager(),"Image Dialog");
+                dialogFragment.show((OpenWeatherMainActivity.this).getSupportFragmentManager(),"Image Dialog");
                 return true;
             case R.id.menu_settings:
-                deleteAllCitiesDialog();
+//                deleteAllCitiesDialog();
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
                 return true;
             case R.id.menu_exit:
                 System.exit(1);

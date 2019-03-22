@@ -61,7 +61,7 @@ public class RecordAdapter extends BaseAdapter {//ArrayAdapter<Record> {
         ((TextView) listItemView.findViewById(R.id.name)).setText(getPos.name);
         ((TextView) listItemView.findViewById(R.id.temp)).setText(getPos.temperature);
 
-        CheckBox checkBox = (CheckBox) listItemView.findViewById(R.id.selected);
+        CheckBox checkBox = listItemView.findViewById(R.id.selected);
         checkBox.setChecked(false);
 
         // присваиваем чекбоксу обработчик
@@ -85,7 +85,7 @@ public class RecordAdapter extends BaseAdapter {//ArrayAdapter<Record> {
         listItemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ctx, Test.class);
+                Intent intent = new Intent(ctx, DetailedInfoActivity.class);
                 intent.putExtra("city_name", getItem(position).name);
                 ctx.startActivity(intent);
             }

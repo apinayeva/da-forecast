@@ -58,4 +58,17 @@ public class DBHelper extends SQLiteOpenHelper {
         cursor.close();
         return cityList;
     }
+
+    // TODO: add case sensitive
+    public boolean checkExistence(String name) {
+        SQLiteDatabase db = getWritableDatabase();
+        String Query = "Select name from " + tableName + " where name = '" + name + "';";
+        Cursor cursor = db.rawQuery(Query, null);
+        if (cursor.getCount() <= 0) {
+            cursor.close();
+            return false;
+        }
+        cursor.close();
+        return true;
+    }
 }

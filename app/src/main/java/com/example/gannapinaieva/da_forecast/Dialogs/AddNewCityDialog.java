@@ -2,7 +2,6 @@ package com.example.gannapinaieva.da_forecast.Dialogs;
 
 import android.app.DialogFragment;
 import android.content.ContentValues;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -16,30 +15,29 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.example.gannapinaieva.da_forecast.DBHelper;
-import com.example.gannapinaieva.da_forecast.MainActivity;
+import com.example.gannapinaieva.da_forecast.GetWeatherTask;
+import com.example.gannapinaieva.da_forecast.OpenWeatherMainActivity;
 import com.example.gannapinaieva.da_forecast.R;
+
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+
+import java.util.concurrent.ExecutionException;
 
 public class AddNewCityDialog extends DialogFragment implements OnClickListener {
-    final String LOG_TAG = "myLogs";
+    final String LOG_TAG = "AddNewCityDialogLog";
     TextView cityName;
     Button findCityButton;
 
     DBHelper dbHelper;
-
-    // For DB
-    String tableName = "da_forecast";
     SQLiteDatabase db;
 
+    private String dbName = "da_forecast";
+
+    private static final String OPEN_WEATHER_MAP_API =
+            "http://api.openweathermap.org/data/2.5/weather?q=%s&units=metric&appid=%s";
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -89,84 +87,37 @@ public class AddNewCityDialog extends DialogFragment implements OnClickListener 
                 dismiss();
                 break;
             case R.id.btnYes:
-                String url = String.format("http://api.openweathermap.org/data/2.5/weather?q=" + cityName.getText().toString() + "&units=metric&appid=cbed39654714639012ce07124b4bbd88&lang=ru");
+                String url = String.format(OPEN_WEATHER_MAP_API, cityName.getText().toString(), this.getString(R.string.open_weather_maps_app_id));
                 // TODO: убрать запись в сити нейм textview
-                new GetWeatherTask(cityName).execute(url);
+
+                ContentValues cv = new ContentValues();
+                db = dbHelper.getWritableDatabase();
+
+                try {
+                    AsyncTask<String, Void, JSONObject> json = new GetWeatherTask(cityName).execute(url);
+                    String cityName = json.get().getString("name");
+                    if (!dbHelper.checkExistence(cityName)) {
+                        cv.put("name", cityName);
+                        cv.put("temperature", json.get().getJSONObject("main").getDouble("temp"));
+                    } else {
+                        Toast.makeText(getActivity(), cityName + " - city already exists!", Toast.LENGTH_LONG).show();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+
+                db.insert(dbName, null, cv);
+                // Reload list in main activity
+                ((OpenWeatherMainActivity)getActivity()).printlistOfCities();
+                cityName.setText("");
+
+                dismiss();
                 break;
         }
 
-    }
-
-    // TODO: add case sensitive
-    public boolean checkExistence(String name) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String Query = "Select name from " + tableName + " where name = '" + name + "';";
-        Cursor cursor = db.rawQuery(Query, null);
-        if (cursor.getCount() <= 0) {
-            cursor.close();
-            return false;
-        }
-        cursor.close();
-        return true;
-    }
-
-
-    // TODO: не обрабатывает корректно если введено неверное значенип
-    private class GetWeatherTask extends AsyncTask<String, Void, JSONObject> {
-        private TextView textView;
-
-        public GetWeatherTask(TextView textView) {
-            this.textView = textView;
-        }
-
-        @Override
-        protected JSONObject doInBackground(String... strings) {
-            JSONObject topLevel = null;
-            try {
-                URL url = new URL(strings[0]);
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-
-                InputStream stream = new BufferedInputStream(urlConnection.getInputStream());
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
-                StringBuilder builder = new StringBuilder();
-
-                String inputString;
-                while ((inputString = bufferedReader.readLine()) != null) {
-                    builder.append(inputString);
-                }
-
-                topLevel = new JSONObject(builder.toString());
-
-                urlConnection.disconnect();
-            } catch (IOException | JSONException e) {
-                e.printStackTrace();
-            }
-            return topLevel;
-        }
-
-        @Override
-        protected void onPostExecute(JSONObject json) {
-            ContentValues cv = new ContentValues();
-            db = dbHelper.getWritableDatabase();
-
-            try {
-                String cityName = json.getString("name");
-                if (!checkExistence(cityName)) {
-                    cv.put("name", cityName);
-                    cv.put("temperature", json.getJSONObject("main").getDouble("temp"));
-                } else {
-                    Toast.makeText(getActivity(), cityName + " - city already exists!", Toast.LENGTH_LONG).show();
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            db.insert("da_forecast", null, cv);
-            // Reload list in main activity
-            ((MainActivity)getActivity()).printlistOfCities();
-            cityName.setText("");
-
-            dismiss();
-        }
     }
 }

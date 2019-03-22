@@ -14,7 +14,12 @@
     <string name="settings">Settings</string>
     <string name="exit">Exit</string>
 
-
     <!-- Put your own APP ID here -->
     <string name="open_weather_maps_app_id">cbed39654714639012ce07124b4bbd88</string>
+    <string name="title_activity_first_launch_settings">FirstLaunchSettingsActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -4,40 +4,47 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Test">
+    tools:context=".FirstLaunchSettingsActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <Button
-            android:id="@+id/returnBackButton"
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="Return back"></Button>
+            android:layout_weight="0.20"
+            android:gravity="center"
+            android:text="Hello, here is the first run of your app!"
+            android:textSize="20sp" />
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.20"
+            android:gravity="center"
+            android:text="Select which API do you want to use in future?"
+            android:textSize="20sp" />
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/cityname"
+            <Button
+                android:id="@+id/btnYahoo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="TextView"
-                tools:layout_editor_absoluteX="0dp"
-                tools:layout_editor_absoluteY="0dp" />
+                android:text="Yahoo"></Button>
 
             <Button
-                android:id="@+id/search"
+                android:id="@+id/btnOpenWeather"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Button" />
-
+                android:text="OpenWeather"></Button>
         </LinearLayout>
+
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

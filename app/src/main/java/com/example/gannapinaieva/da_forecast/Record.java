@@ -10,6 +10,11 @@ public class Record {
     public Record(String name, String temperature) {
         this.name = name;
         this.temperature = temperature;
+    }
+
+    public Record(String name, String temperature, boolean box) {
+        this.name = name;
+        this.temperature = temperature;
         this.box = box;
     }
 
