@@ -1,61 +1,150 @@
 package com.example.gannapinaieva.da_forecast;
 
-import android.annotation.SuppressLint;
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.support.v7.app.AppCompatActivity;
+import android.app.AlertDialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import java.text.SimpleDateFormat;
+import com.example.gannapinaieva.da_forecast.Dialogs.AddNewCityDialog;
+import com.example.gannapinaieva.da_forecast.Dialogs.DeleteSelectedDialog;
+
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity { //implements OnClickListener {
+
+    // TODO: if empty list then ask location
+    // TODO: lowercase in checking city doesn't work
+
+    // if extends Activity - than full screen
+    private ListView cityList;
+    private LinearLayout listOfSelectedCities;
+    private DialogFragment addCityDialog;
+
+    RecordAdapter recordAdapter;
+
+    DBHelper dbHelper;
+    ArrayList<Record> listOfCities;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Initializing a new String Array
-        String[] fruits = new String[]
-        {
-                "Cape Gooseberry",
-                "Capuli cherry"
-        };
+        // создаем объект для создания и управления версиями БД
+        dbHelper = new DBHelper(this);
+
+        listOfSelectedCities = findViewById(R.id.listOfCities);
 
         // Get reference of widgets from XML layout
-        final ListView cityList = findViewById(R.id.city_list);
+        // TODO: what is it?
+        cityList = findViewById(R.id.city_list);
 
-        // Create a List from String Array elements
-        final List<String> fruits_list = new ArrayList<>(Arrays.asList(fruits));
+        addCityDialog = new AddNewCityDialog();
 
-        // Create an ArrayAdapter from List
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>
-                (this, android.R.layout.simple_list_item_1, fruits_list);
+        // Fill list with cities
+        printlistOfCities();
 
-        // DataBind ListView with items from ArrayAdapter
-        cityList.setAdapter(arrayAdapter);
+//        // Long click on item will cause opening dialog to delete this item or not
+//        cityList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+//            @Override
+//            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+//                deleteCityDialog(((Record) parent.getItemAtPosition(position)).getName());
+//                printlistOfCities();
+//                return true;
+//            }
+//
+//        });
+    }
 
+//    public void deleteCityDialog(final String cityName) {
+//        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+//        builder.setMessage("Do you really want to delete " + cityName + " city?");
+//
+//        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                deleteCity(cityName);
+//                cityList.invalidateViews();
+//                dialog.dismiss();
+//            }
+//        });
+//
+//        builder.setNegativeButton("Abort", new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                dialog.dismiss();
+//            }
+//        });
+//
+//        builder.show();
+//    }
 
-        Button selectCity = findViewById(R.id.find_button);
-        selectCity.setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("SetTextI18n")
+    public void deleteAllCitiesDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setMessage("Do you really want to delete all cities?");
+
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                TextView randomText = findViewById(R.id.find_city_field);
-
-                fruits_list.add(randomText.getText().toString());
-                arrayAdapter.notifyDataSetChanged();
+            public void onClick(DialogInterface dialog, int which) {
+                dbHelper.deleteAllCities();
+                cityList.invalidateViews();
+                dialog.dismiss();
             }
         });
+
+        builder.setNegativeButton("Abort", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        builder.show();
+    }
+
+    //groupId - идентификатор группы, частью которой является пункт меню
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.mymenu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.menu_add:
+                addCityDialog.show(getFragmentManager(), "addCityDialog");
+                return true;
+            case R.id.menu_delete:
+                DeleteSelectedDialog dialogFragment = new DeleteSelectedDialog();
+                Bundle bundle = new Bundle();
+                bundle.putString("list", (new RecordAdapter(this, dbHelper.getCityForecastList()).showResult()));
+                dialogFragment.setArguments(bundle);
+                dialogFragment.show((MainActivity.this).getSupportFragmentManager(),"Image Dialog");
+                return true;
+            case R.id.menu_settings:
+                deleteAllCitiesDialog();
+                return true;
+            case R.id.menu_exit:
+                System.exit(1);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    // TODO: remove it
+    public void printlistOfCities() {
+        // Fill list with data from DB
+        recordAdapter = new RecordAdapter(this, dbHelper.getCityForecastList());
+        cityList.setAdapter(recordAdapter);
+        recordAdapter.notifyDataSetChanged();
+        cityList.invalidateViews();
     }
 }
