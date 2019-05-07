@@ -12,9 +12,8 @@ import android.widget.Toast;
 
 public class FirstLaunchSettingsActivity extends AppCompatActivity implements View.OnClickListener {
 
-    Button btnYahoo;
+    Button btnYahoo, btnOpenWeather;
     private SharedPreferences prefs = null;
-
     private Intent intent;
 
     @Override
@@ -38,11 +37,16 @@ public class FirstLaunchSettingsActivity extends AppCompatActivity implements Vi
                 Toast.makeText(FirstLaunchSettingsActivity.this, "btnYahoo clicked", Toast.LENGTH_LONG).show();
                 prefs.edit().putBoolean("api", true);
                 prefs.edit().putBoolean("firstrun", false).apply();
+                intent = new Intent(this, YahooMainActivity.class);
+                startActivity(intent);
                 break;
             case R.id.btnOpenWeather:
                 Toast.makeText(FirstLaunchSettingsActivity.this, "btnOpenWeather clicked", Toast.LENGTH_LONG).show();
                 prefs.edit().putBoolean("api", false);
                 prefs.edit().putBoolean("firstrun", false).apply();
+                intent = new Intent(this, OpenWeatherMainActivity.class);
+//                intent = new Intent(this, Fragment1.class);
+                startActivity(intent);
                 break;
         }
     }
@@ -50,14 +54,17 @@ public class FirstLaunchSettingsActivity extends AppCompatActivity implements Vi
     @Override
     protected void onResume() {
         super.onResume();
+
+        // check if it is the first run of app, if not check which api should be used for weather cast
         if (!prefs.getBoolean("firstrun", true)) {
-            // todo: разобраться почему так логика работает странно
-            if(!prefs.getBoolean("api",false)) {
-                intent = new Intent(this, OpenWeatherMainActivity.class);
+            // TODO: why if working wrong?
+            if(!prefs.getBoolean("api",true)) {
+                Toast.makeText(FirstLaunchSettingsActivity.this, "api = yahoo and not implemented", Toast.LENGTH_LONG).show();
+                intent = new Intent(this, YahooMainActivity.class);
             }
             else {
-//                Toast.makeText(FirstLaunchSettingsActivity.this, "api = yahoo and not implemented", Toast.LENGTH_LONG).show();
-                intent = new Intent(this, YahooMainActivity.class);
+                intent = new Intent(this, OpenWeatherMainActivity.class);
+//                intent = new Intent(this, Fragment1.class);
             }
             startActivity(intent);
         }

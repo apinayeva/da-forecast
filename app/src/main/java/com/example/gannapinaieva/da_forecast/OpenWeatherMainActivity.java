@@ -1,6 +1,5 @@
 package com.example.gannapinaieva.da_forecast;
 
-import android.app.DialogFragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -9,13 +8,8 @@ import android.view.MenuItem;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
-import com.example.gannapinaieva.da_forecast.DBHelper;
 import com.example.gannapinaieva.da_forecast.Dialogs.AddNewCityDialog;
 import com.example.gannapinaieva.da_forecast.Dialogs.DeleteSelectedDialog;
-import com.example.gannapinaieva.da_forecast.R;
-import com.example.gannapinaieva.da_forecast.Record;
-import com.example.gannapinaieva.da_forecast.RecordAdapter;
-import com.example.gannapinaieva.da_forecast.SettingsActivity;
 
 import java.util.ArrayList;
 
@@ -27,7 +21,6 @@ public class OpenWeatherMainActivity extends AppCompatActivity { //implements On
     // if extends Activity - than full screen
     private ListView cityList;
     private LinearLayout listOfSelectedCities;
-    private DialogFragment addCityDialog;
 
     RecordAdapter recordAdapter;
 
@@ -52,8 +45,6 @@ public class OpenWeatherMainActivity extends AppCompatActivity { //implements On
         // Get reference of widgets from XML layout
         // TODO: what is it?
         cityList = findViewById(R.id.city_list);
-
-        addCityDialog = new AddNewCityDialog();
 
         // Fill list with cities
         printlistOfCities();
@@ -103,7 +94,7 @@ public class OpenWeatherMainActivity extends AppCompatActivity { //implements On
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.menu_add:
-                addCityDialog.show(getFragmentManager(), "addCityDialog");
+                new AddNewCityDialog().show(getFragmentManager(), "addCityDialog");
                 return true;
             case R.id.menu_delete:
                 DeleteSelectedDialog dialogFragment = new DeleteSelectedDialog();

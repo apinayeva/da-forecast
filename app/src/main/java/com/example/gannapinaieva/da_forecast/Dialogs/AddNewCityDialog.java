@@ -27,7 +27,10 @@ import org.json.JSONObject;
 import java.util.concurrent.ExecutionException;
 
 public class AddNewCityDialog extends DialogFragment implements OnClickListener {
-    final String LOG_TAG = "AddNewCityDialogLog";
+    private static final String LOG_TAG = "AddNewCityDialogLog";
+    private static final String OPEN_WEATHER_MAP_API =
+            "http://api.openweathermap.org/data/2.5/weather?q=%s&units=metric&appid=%s";
+
     TextView cityName;
     Button findCityButton;
 
@@ -36,13 +39,9 @@ public class AddNewCityDialog extends DialogFragment implements OnClickListener 
 
     private String dbName = "da_forecast";
 
-    private static final String OPEN_WEATHER_MAP_API =
-            "http://api.openweathermap.org/data/2.5/weather?q=%s&units=metric&appid=%s";
-
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        getDialog().setTitle("Title!");
-        View v = inflater.inflate(R.layout.dialog1, null);
+        View v = inflater.inflate(R.layout.add_new_city_dialog, null);
         findCityButton = v.findViewById(R.id.btnYes);
         findCityButton.setEnabled(false);
         v.findViewById(R.id.btnNo).setOnClickListener(this);
@@ -83,7 +82,6 @@ public class AddNewCityDialog extends DialogFragment implements OnClickListener 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnNo:
-                Log.d(LOG_TAG, "Dialog 1: " + ((Button) v).getText());
                 dismiss();
                 break;
             case R.id.btnYes:
@@ -96,12 +94,23 @@ public class AddNewCityDialog extends DialogFragment implements OnClickListener 
                 try {
                     AsyncTask<String, Void, JSONObject> json = new GetWeatherTask(cityName).execute(url);
                     String cityName = json.get().getString("name");
-                    if (!dbHelper.checkExistence(cityName)) {
-                        cv.put("name", cityName);
-                        cv.put("temperature", json.get().getJSONObject("main").getDouble("temp"));
-                    } else {
-                        Toast.makeText(getActivity(), cityName + " - city already exists!", Toast.LENGTH_LONG).show();
-                    }
+                        if (!dbHelper.checkExistence(cityName)) {
+                            cv.put("name", cityName);
+                            cv.put("temperature", json.get().getJSONObject("main").getDouble("temp"));
+
+                            db.insert(dbName, null, cv);
+                            dismiss();
+                            // Reload list in main activity
+                            // TODO: add fragment update
+                            ((OpenWeatherMainActivity)getActivity()).printlistOfCities();
+                        } else {
+                            Log.e(LOG_TAG, cityName + " - city already exists!");
+                            Toast.makeText(getActivity(), cityName + " - city already exists!", Toast.LENGTH_LONG).show();
+                        }
+                } catch (NullPointerException e) {
+                    Log.e(LOG_TAG, cityName.getText() + " - city doesn't exist!");
+                    Toast.makeText(getActivity(), cityName.getText() + " - city doesn't exist!", Toast.LENGTH_LONG).show();
+                    e.printStackTrace();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
@@ -109,15 +118,8 @@ public class AddNewCityDialog extends DialogFragment implements OnClickListener 
                 } catch (ExecutionException e) {
                     e.printStackTrace();
                 }
-
-                db.insert(dbName, null, cv);
-                // Reload list in main activity
-                ((OpenWeatherMainActivity)getActivity()).printlistOfCities();
                 cityName.setText("");
-
-                dismiss();
                 break;
         }
-
     }
 }
